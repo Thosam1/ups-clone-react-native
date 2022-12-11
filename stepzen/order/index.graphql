@@ -1,0 +1,39 @@
+# type for typescript - props from firebase when going to the url: https://ups-clone-react-native-c3f18-default-rtdb.europe-west1.firebasedatabase.app/orders.json
+type Order {
+  carrier: String
+  createdAt: Date
+  shippingCost: Int
+  trackingId: String
+  Address: String
+  City: String
+  Lat: Float
+  Lng: Float
+
+  # TrackingItems - it will use and build another variables from trackingId by using the getTrackingItemsById query
+  trackingItems: TrackingItems
+    @materializer (
+      query: "getTrackingItemById",
+      arguments: [{ name: "id", field: "trackingId"}]
+    )
+}
+
+type OrderList {
+  name: ID
+  value: Order
+}
+
+type Query {
+  """
+  Result typed as JSON since it has fields ["-N6rOvLXK2t39x-Bp0UP", "-N6rQ_YDMNTjq_mCbhZN", "-N6rQsEqX4vt-0cBA336", "-N6rQvnBSkz2kglMvr5H", "-N6rSQz62DlXFPbd32CD"] that are invalid graphql identifiers
+  """
+  getOrderById(id: ID): Order
+    @rest(
+      endpoint: "https://ups-clone-react-native-c3f18-default-rtdb.europe-west1.firebasedatabase.app/orders/$id.json"
+    )
+  
+  getOrders: [OrderList]
+    @rest(
+      endpoint: "https://ups-clone-react-native-c3f18-default-rtdb.europe-west1.firebasedatabase.app/orders.json"
+      transforms: [{ pathpattern: [], editor: "objectToArray" }]
+    )
+}
